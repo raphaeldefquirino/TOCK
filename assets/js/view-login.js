@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const emailError = document.getElementById('email-error');
     const passwordError = document.getElementById('password-error');
     const togglePasswordBtn = document.querySelector('.toggle-password');
-    const loginButton = document.querySelector('.login-button');
+    const loginButton = document.getElementById('login-button');
     
     // Validação de email em tempo real
     emailInput.addEventListener('input', function() {
@@ -34,18 +34,16 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
-    // Submissão do formulário
+    // Validação do formulário antes do envio
     loginForm.addEventListener('submit', function(e) {
-        e.preventDefault();
-        
         // Validar todos os campos
         const isEmailValid = validateEmail();
         const isPasswordValid = validatePassword();
         
-        // Se todos os campos forem válidos, simular login
-        if (isEmailValid && isPasswordValid) {
-            simulateLogin();
-        } else {
+        // Se algum campo for inválido, impedir o envio do formulário
+        if (!isEmailValid || !isPasswordValid) {
+            e.preventDefault();
+            
             // Adicionar efeito de shake nos campos inválidos
             if (!isEmailValid) {
                 const emailGroup = emailInput.closest('.input-group');
@@ -62,6 +60,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     passwordGroup.classList.remove('shake');
                 }, 600);
             }
+        } else {
+            // Mostrar estado de carregamento
+            loginButton.classList.add('loading');
+            // Permitir que o formulário seja enviado para o backend
         }
     });
     
@@ -112,29 +114,6 @@ document.addEventListener('DOMContentLoaded', function() {
         inputGroup.classList.remove('invalid');
         inputGroup.classList.add('valid');
         errorElement.textContent = '';
-    }
-    
-    // Função para simular login
-    function simulateLogin() {
-        // Mostrar estado de carregamento
-        loginButton.classList.add('loading');
-        
-        // Simular requisição de login (3 segundos)
-        setTimeout(function() {
-            // Remover estado de carregamento
-            loginButton.classList.remove('loading');
-            
-            // Simular redirecionamento
-            alert('Login realizado com sucesso! Redirecionando para o dashboard...');
-            
-            // Limpar formulário
-            loginForm.reset();
-            
-            // Remover classes de validação
-            document.querySelectorAll('.input-group').forEach(group => {
-                group.classList.remove('valid', 'invalid');
-            });
-        }, 2000);
     }
     
     // Adicionar efeitos de foco nos inputs

@@ -1,48 +1,48 @@
 <?php
 // Página de login utilizando POO com estrutura reorganizada
-require_once '././init.php';
+// Usando caminho absoluto para o init.php
 
-// Variáveis para mensagens de erro e valores do formulário
-$error = '';
-$email = '';
+// Definir caminho absoluto para a raiz do projeto
+$rootPath = dirname(dirname(__DIR__));
+require_once $rootPath . '/init.php';
 
-// Verificar se o usuário já está logado
+// Inicializar objetos
 $database = new Database(Config::$DB_HOST, Config::$DB_NAME, Config::$DB_USER, Config::$DB_PASS);
 $db = $database->connect();
 $user = new User($db);
 $auth = new Auth($user);
+$validator = new Validator();
 
-if ($auth->isLoggedIn()) {
-    // Redirecionar para a página de cadastro
-    header("Location: " . Config::$CADASTRO_URL);
-    exit;
-}
+// Variáveis para mensagens
+$error_message = '';
+$success_message = '';
 
-// Verificar se o formulário foi enviado
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // Obter dados do formulário
-    $email = trim($_POST['email']);
-    $password = trim($_POST['password']);
+// Processar formulário de login
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $email = isset($_POST['email']) ? trim($_POST['email']) : '';
+    $password = isset($_POST['password']) ? $_POST['password'] : '';
     
-    // Validar dados
-    $validator = new Validator();
-    $isEmailValid = $validator->validateEmail($email);
-    $isPasswordValid = $validator->validatePassword($password);
+    // Validar campos
+    $valid_email = $validator->validateEmail($email);
+    $valid_password = $validator->validatePassword($password);
     
-    // Se não houver erros de validação, tentar fazer login
-    if ($isEmailValid && $isPasswordValid) {
+    if ($valid_email && $valid_password) {
+        // Tentar fazer login
         if ($auth->login($email, $password)) {
             // Login bem-sucedido, redirecionar para a página de cadastro
             header("Location: " . Config::$CADASTRO_URL);
             exit;
         } else {
-            // Login falhou
-            $error = "Email ou senha incorretos.";
+            $error_message = 'Email ou senha incorretos. Por favor, tente novamente.';
         }
     } else {
         // Exibir erros de validação
         $errors = $validator->getErrors();
-        $error = reset($errors); // Pegar o primeiro erro
+        if (isset($errors['email'])) {
+            $error_message = $errors['email'];
+        } elseif (isset($errors['password'])) {
+            $error_message = $errors['password'];
+        }
     }
 }
 ?>
@@ -53,10 +53,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - Sistema de Gerenciamento de Estoque</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="../assets/css/style-login.css">
+    <link rel="stylesheet" href="<?php echo Config::$BASE_URL; ?>/assets/css/style-login.css">
 </head>
 <body>
-    <div class="container">
+   <div class="container">
         <div class="login-container">
             <div class="login-header">
                 <div class="logo">
@@ -84,7 +84,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         <label for="email">Email</label>
                         <div class="input-group">
                             <i class="fas fa-envelope"></i>
-                            <input type="email" id="email" name="email" placeholder="Seu email" required value="<?php echo htmlspecialchars($email); ?>">
+                            <input type="email" id="email" name="email" placeholder="Seu email" required>
                         </div>
                         <span class="error-message" id="email-error"></span>
                     </div>
@@ -135,6 +135,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         </div>
     </div>
     
-    <script src="../assets/js/script.js"></script>
+    <script src="<?php echo Config::$BASE_URL; ?>/assets/js/view-login.js"></script>
 </body>
 </html>

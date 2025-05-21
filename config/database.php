@@ -1,54 +1,50 @@
 <?php
 /**
  * Classe Database
- * Responsável pela conexão e operações com o banco de dados
+ * Responsável pela conexão com o banco de dados
  */
 class Database {
     private $host;
-    private $dbname;
+    private $db_name;
     private $username;
     private $password;
     private $conn;
     
     /**
-     * Construtor com parâmetros de conexão
+     * Construtor recebe os dados de conexão
      * 
-     * @param string $host     Host do banco de dados
-     * @param string $dbname   Nome do banco de dados
+     * @param string $host Host do banco de dados
+     * @param string $db_name Nome do banco de dados
      * @param string $username Usuário do banco de dados
      * @param string $password Senha do banco de dados
      */
-    public function __construct($host, $dbname, $username, $password) {
+    public function __construct($host, $db_name, $username, $password) {
         $this->host = $host;
-        $this->dbname = $dbname;
+        $this->db_name = $db_name;
         $this->username = $username;
         $this->password = $password;
     }
     
     /**
-     * Método para conectar ao banco
+     * Método para conectar ao banco de dados
      * 
-     * @return PDO Objeto de conexão PDO
+     * @return PDO Conexão com o banco de dados
      */
     public function connect() {
+        $this->conn = null;
+        
         try {
-            $this->conn = new PDO("mysql:host={$this->host};dbname={$this->dbname};charset=utf8", 
-                                  $this->username, 
-                                  $this->password);
+            $this->conn = new PDO(
+                "mysql:host={$this->host};dbname={$this->db_name}",
+                $this->username,
+                $this->password
+            );
             $this->conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-            $this->conn->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
-            return $this->conn;
+            $this->conn->exec("set names utf8");
         } catch(PDOException $e) {
-            die("Erro de conexão: " . $e->getMessage());
+            echo "Erro de conexão: " . $e->getMessage();
         }
-    }
-    
-    /**
-     * Método para obter a conexão
-     * 
-     * @return PDO Objeto de conexão PDO
-     */
-    public function getConnection() {
+        
         return $this->conn;
     }
 }

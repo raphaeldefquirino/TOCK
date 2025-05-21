@@ -1,6 +1,6 @@
 <?php
-// Página de redirecionamento para a página de login
-// Este arquivo fica na raiz e redireciona para a view de login
+// Arquivo de redirecionamento para a página de login
+// Redireciona o usuário para a página de login quando acessa a raiz do projeto
 
 // Incluir arquivo de inicialização
 require_once 'init.php';
