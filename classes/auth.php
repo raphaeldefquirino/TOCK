@@ -32,12 +32,18 @@ class Auth
      */
     public function login($email, $password)
     {
-        $row = $this->user->findByEmail($email); // Agora já é um array associativo
+        $row = $this->user->findByEmail($email); // Retorna array associativo com todos os campos
 
-        if ($row && password_verify($password, $row['senha'])) {
-            $_SESSION['user_id'] = $row['id'];
-            $_SESSION['user_name'] = $row['nome'];
-            $_SESSION['user_email'] = $row['email'];
+        if ($row && password_verify($password, $row["senha"])) {
+            // Armazenar todos os dados relevantes do usuário na sessão
+            // Isso evita buscar no banco a cada requisição para obter dados do usuário logado
+            $_SESSION["user_data"] = $row; // Armazena o array completo retornado por findByEmail
+            $_SESSION["user_id"] = $row["id"]; // Manter user_id para compatibilidade e verificações rápidas
+            
+            // Opcional: remover chaves individuais antigas se existirem
+            unset($_SESSION["user_name"]);
+            unset($_SESSION["user_email"]);
+
             return true;
         }
 
@@ -52,7 +58,8 @@ class Auth
      */
     public function isLoggedIn()
     {
-        return isset($_SESSION['user_id']);
+        // Verifica se o ID do usuário está na sessão
+        return isset($_SESSION["user_id"]);
     }
 
     /**
@@ -62,14 +69,12 @@ class Auth
      */
     public function getLoggedInUser()
     {
-        if ($this->isLoggedIn()) {
-            return [
-                'id' => $_SESSION['user_id'],
-                'name' => $_SESSION['user_name'],
-                'email' => $_SESSION['user_email']
-            ];
+        // Retorna os dados completos do usuário armazenados na sessão
+        if ($this->isLoggedIn() && isset($_SESSION["user_data"])) {
+            return $_SESSION["user_data"]; // Retorna o array completo
         }
 
+        // Se não estiver logado ou os dados não estiverem na sessão, retorna null
         return null;
     }
 
@@ -88,7 +93,7 @@ class Auth
             $params = session_get_cookie_params();
             setcookie(
                 session_name(),
-                '',
+                "",
                 time() - 42000,
                 $params["path"],
                 $params["domain"],
@@ -103,3 +108,4 @@ class Auth
         return true;
     }
 }
+

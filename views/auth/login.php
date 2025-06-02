@@ -61,7 +61,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div class="login-header">
                 <div class="logo">
                     <i class="fas fa-boxes-stacked"></i>
-                    <h1>StockPro</h1>
+                    <h1>Tock</h1>
                 </div>
                 <p class="subtitle">Sistema de Gerenciamento de Estoque</p>
             </div>
